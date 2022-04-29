@@ -19,6 +19,6 @@ func badge(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "image/svg+xml")
 	s := svg.New(w)
 	s.Start(250, 100)
-	s.Text(10, 20, r.Referer(), "font-family=\"Verdana\" font-size=\"12\" fill=\"blue\"")
+	s.Text(10, 20, "Valid!", "font-family=\"Verdana\" font-size=\"12\" fill=\"blue\"")
 	s.End()
 }
