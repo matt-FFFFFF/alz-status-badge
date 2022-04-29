@@ -76,6 +76,6 @@ jobs:
             echo "Installing containerapp extension"
             az config set extension.use_dynamic_install=yes_without_prompt
             echo "Starting Deploying"
-            IMAGE_NAME_LOWER=$(echo $IMAGE_NAME | tr '[:upper:]' '[:lower:]' )
+            IMAGE_NAME_LOWER=$(echo $IMAGE_NAME | tr '[:upper:]' '[:lower:]')
             az containerapp registry set -n badge -g alzstatusapp --server ghcr.io --username  ${{ secrets.BADGE_REGISTRY_USERNAME }} --password ${{ secrets.BADGE_REGISTRY_PASSWORD }}
-            az containerapp update -n badge -g alzstatusapp --image https://ghcr.io/$IMAGE_NAME_LOWER:${{ github.sha }}
+            az containerapp update -n badge -g alzstatusapp --image ${{ env.REGISTRY }}/$IMAGE_NAME_LOWER:${{ github.sha }}
