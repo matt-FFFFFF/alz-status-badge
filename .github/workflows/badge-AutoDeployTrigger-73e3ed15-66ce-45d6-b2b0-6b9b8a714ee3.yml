@@ -1,4 +1,4 @@
-name: Trigger auto deployment for containerapp badge
+name: DISABLED - Trigger auto deployment for containerapp badge
 
 # When this action will be executed
 on:
