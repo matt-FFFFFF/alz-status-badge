@@ -8,7 +8,7 @@ on:
       [ main ]
     paths:
     - '**'
-    - '.github/workflows/badge-AutoDeployTrigger-73e3ed15-66ce-45d6-b2b0-6b9b8a714ee3.yml'
+    - '.github/workflows/ci.yml'
 
   # Allow manual trigger
   workflow_dispatch:
@@ -19,8 +19,9 @@ env:
 
 permissions:
   actions: read
-  packages: write
   contents: read
+  id-token: write
+  packages: write
 
 jobs:
   build:
@@ -66,7 +67,9 @@ jobs:
       - name: Azure Login
         uses: azure/login@v1
         with:
-          creds: ${{ secrets.BADGE_AZURE_CREDENTIALS }}
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
 
       - name: Deploy to containerapp
@@ -77,5 +80,4 @@ jobs:
             az config set extension.use_dynamic_install=yes_without_prompt
             echo "Starting Deploying"
             IMAGE_NAME_LOWER=$(echo $IMAGE_NAME | tr '[:upper:]' '[:lower:]')
-            ## az containerapp registry set -n badge -g alzstatusapp --server ghcr.io --username  ${{ secrets.BADGE_REGISTRY_USERNAME }} --password ${{ secrets.BADGE_REGISTRY_PASSWORD }}
-            az containerapp update -n badge -g alzstatusapp --image ${{ env.REGISTRY }}/$IMAGE_NAME_LOWER:${{ github.sha }}
+            az containerapp revision copy -n badge -g alzstatusapp --image ${{ env.REGISTRY }}/$IMAGE_NAME_LOWER:${{ github.sha }}
