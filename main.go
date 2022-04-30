@@ -10,12 +10,16 @@ import (
 func main() {
 	listenAddress := ":8080"
 	http.HandleFunc("/api/badge", badge)
-	log.Printf("About to listen on %s. Go to https://127.0.0.1%s/", listenAddress, listenAddress)
+	log.Printf("About to listen on %s", listenAddress)
 	log.Fatal(http.ListenAndServe(listenAddress, nil))
 }
 
 func badge(w http.ResponseWriter, r *http.Request) {
-	log.Printf("HTTP referrer: %s", r.Referer())
+	log.Printf("Printing headers:")
+	for k, v := range r.Header {
+		log.Printf("%s: %s", k, v)
+	}
+	log.Printf("Remote addr: %s", r.RemoteAddr)
 	w.Header().Set("Content-Type", "image/svg+xml")
 	s := svg.New(w)
 	s.Start(250, 100)
