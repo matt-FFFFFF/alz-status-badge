@@ -80,4 +80,4 @@ jobs:
             az config set extension.use_dynamic_install=yes_without_prompt
             echo "Starting Deploying"
             IMAGE_NAME_LOWER=$(echo $IMAGE_NAME | tr '[:upper:]' '[:lower:]')
-            az containerapp revision copy -n badge -g alzstatusapp --image ${{ env.REGISTRY }}/$IMAGE_NAME_LOWER:${{ github.sha }}
+            az containerapp revision copy -n badge -g alzstatusapp --image ${{ env.REGISTRY }}/$IMAGE_NAME_LOWER:${{ github.sha }} --revision-suffix ${{ github.sha }}
