@@ -55,16 +55,17 @@ func makeBadge(text string, approved bool, s *svg.SVG) {
 		rightFill = "#4c1"
 	case false:
 		rightFill = "#c41"
+		text = "NOT APPROVED"
 	}
 
 	w := 200
 	h := 20
 	split := 0.35
-	greenRectX := int(float64(w) * split)
-	greenRectW := w - greenRectX
-	pathStyle := fmt.Sprintf("M%d 0h4v20h-4z", greenRectX)
-	leftTextX := greenRectX / 2
-	rightTextX := ((w - greenRectX) / 2) + greenRectX
+	rightRectX := int(float64(w) * split)
+	rightRectW := w - rightRectX
+	pathStyle := fmt.Sprintf("M%d 0h4v20h-4z", rightRectX)
+	leftTextX := rightRectX / 2
+	rightTextX := ((w - rightRectX) / 2) + rightRectX
 	sc := []svg.Offcolor{
 		{Offset: 0, Color: "#bbb", Opacity: 0.1},
 		{Offset: 100, Opacity: 0.1},
@@ -72,7 +73,7 @@ func makeBadge(text string, approved bool, s *svg.SVG) {
 	s.Start(w, h)
 	s.LinearGradient("g", 0, 0, 0, uint8(w), sc)
 	s.Rect(0, 0, w, h, "fill=\"#555\" rx=\"3\"")
-	s.Rect(greenRectX, 0, greenRectW, h, fmt.Sprintf("fill=\"%s\" rx=\"3\"", rightFill)) // This is the green rectangle
+	s.Rect(rightRectX, 0, rightRectW, h, fmt.Sprintf("fill=\"%s\" rx=\"3\"", rightFill)) // This is the green rectangle
 	s.Path(pathStyle, fmt.Sprintf("fill=\"%s\"", rightFill))
 	s.Rect(0, 0, w, h, "fill=\"url(#g)\" rx=\"3\"")
 	s.Gstyle("fill: rgb(255, 255, 255);	text-anchor: middle; font-family: DejaVu Sans, Verdana, Geneva, sans-serif;	font-size: 11;")
