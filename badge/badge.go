@@ -34,6 +34,7 @@ func (s BadgeStyle) String() string {
 	return ""
 }
 
+// MadeShieldsioBadge generates the badge for the given variant and approval status.
 func MakeShieldsioBadge(variant string, approved bool) ([]byte, error) {
 	var color string
 	switch approved {

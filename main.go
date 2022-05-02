@@ -17,7 +17,7 @@ func main() {
 	log.Fatal(http.ListenAndServe(listenAddress, nil))
 }
 
-// badge returns the badge for the given status.
+// badgeApi returns the badge for the given variant supplied in the query.
 func badgeApi(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Received request from: %s (%s)", r.RemoteAddr, r.Header["X-Request-Id"])
 
@@ -49,9 +49,6 @@ func badgeApi(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "image/svg+xml")
 	w.Write(badge)
-
-	//s := svg.New(w)
-	//makeBadge(variant, approved, s)
 
 	log.Printf("End request from: %s (%s)", r.RemoteAddr, r.Header["X-Request-Id"])
 }
