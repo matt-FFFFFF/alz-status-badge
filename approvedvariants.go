@@ -27,7 +27,7 @@ func updateApprovedVariants(av ApprovedVariants, url string) {
 		}
 
 		log.Printf("Approved variants: %s", vs)
-		time.Sleep(time.Second * 15)
+		time.Sleep(time.Minute * 15)
 	}
 }
 
