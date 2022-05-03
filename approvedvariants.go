@@ -5,28 +5,38 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"net/url"
 	"sort"
 	"time"
 )
 
-// updateApprovedVariants updates the approved variants map every 15 minutes. Use a goroutine to call this function.
-func updateApprovedVariants(av ApprovedVariants, url string) {
+// updateApprovedVariants updates the approved variants map every 15 minutes. Use a goroutine to call this function as it will run forever.
+func updateApprovedVariants(config *AppConfig) {
 	for {
 		log.Printf("Checking approved variants")
-		vl, err := getApprovedVariants(&url)
+		vl, err := getApprovedVariants(config.ApprovedVariantsUrl)
 		if err != nil {
 			log.Printf("Error downloading approved variants: %s", err.Error())
 		}
 
-		log.Printf("Approved variants downloaded: %d", len(vl))
-
-		for _, v := range vl {
-			av[v] = nil
+		if len(vl) == 0 {
+			log.Printf("No approved variants found")
+			break
 		}
 
-		vs := make([]string, len(av))
+		log.Printf("Approved variants downloaded: %d", len(vl))
+
+		nv := make(map[string]interface{})
+		for _, v := range vl {
+			nv[v] = nil
+		}
+
+		config.ApprovedVariants = nv
+
+		// Create a sorted list of unique approved variants for logging.
+		vs := make([]string, len(config.ApprovedVariants))
 		i := 0
-		for k := range av {
+		for k := range config.ApprovedVariants {
 			vs[i] = k
 			i++
 		}
@@ -34,13 +44,13 @@ func updateApprovedVariants(av ApprovedVariants, url string) {
 		sort.Strings(vs)
 
 		log.Printf("%d approved variants: %v", len(vs), vs)
-		time.Sleep(time.Minute * 15)
+		time.Sleep(config.ApprovedVariantsRefreshInterval)
 	}
 }
 
 // getApprovedVariants returns a list of approved variants from the given url.
-func getApprovedVariants(url *string) ([]string, error) {
-	resp, err := http.Get(*url)
+func getApprovedVariants(url *url.URL) ([]string, error) {
+	resp, err := http.Get(url.String())
 	if err != nil {
 		return nil, err
 	}
@@ -52,6 +62,7 @@ func getApprovedVariants(url *string) ([]string, error) {
 		return nil, err
 	}
 
+	// The response should be a JSON array of strings. If it isn't, return an error.
 	vl := make([]string, 0)
 	err = json.Unmarshal(v, &vl)
 	if err != nil {

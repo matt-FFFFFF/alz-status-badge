@@ -12,5 +12,4 @@ FROM scratch
 COPY --from=build /bin/badge /bin/badge
 COPY --from=build /etc/ssl /etc/ssl/
 
-ENTRYPOINT [ "/bin/badge" ]
-EXPOSE 8080/tcp
+ENTRYPOINT [ "/bin/badge" ]s
