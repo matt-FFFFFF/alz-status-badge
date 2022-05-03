@@ -2,13 +2,14 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"log"
 	"net/http"
+	"sort"
 	"time"
 )
 
+// updateApprovedVariants updates the approved variants map every 15 minutes. Use a goroutine to call this function.
 func updateApprovedVariants(av ApprovedVariants, url string) {
 	for {
 		log.Printf("Checking approved variants")
@@ -17,20 +18,27 @@ func updateApprovedVariants(av ApprovedVariants, url string) {
 			log.Printf("Error downloading approved variants: %s", err.Error())
 		}
 
+		log.Printf("Approved variants downloaded: %d", len(vl))
+
 		for _, v := range vl {
 			av[v] = nil
 		}
 
-		var vs string
-		for v := range av {
-			vs = vs + (fmt.Sprintf("%s, ", v))
+		vs := make([]string, len(av))
+		i := 0
+		for k := range av {
+			vs[i] = k
+			i++
 		}
 
-		log.Printf("Approved variants: %s", vs)
+		sort.Strings(vs)
+
+		log.Printf("%d approved variants: %v", len(vs), vs)
 		time.Sleep(time.Minute * 15)
 	}
 }
 
+// getApprovedVariants returns a list of approved variants from the given url.
 func getApprovedVariants(url *string) ([]string, error) {
 	resp, err := http.Get(*url)
 	if err != nil {

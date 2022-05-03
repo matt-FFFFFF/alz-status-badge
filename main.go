@@ -24,7 +24,7 @@ func main() {
 	log.Fatal(http.ListenAndServe(listenAddress, nil))
 }
 
-// badgeApi returns the an http.HandlerFunc for the given approved variants type supplied.
+// badgeApi returns a http.HandlerFunc for the given approved variants type supplied.
 func badgeApi(av ApprovedVariants) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Received request from: %s (%s)", r.RemoteAddr, r.Header["X-Request-Id"])
