@@ -42,7 +42,7 @@ func MakeShieldsioBadge(variant string, approved bool) ([]byte, error) {
 		color = "success"
 	case false:
 		color = "critical"
-		variant = "NOT VALID"
+		variant = "UNAPPROVED"
 	}
 
 	badgeUri := fmt.Sprintf("https://img.shields.io/badge/alz--variant-%s-%s.svg?style=%s", variant, color, ForTheBadge)
