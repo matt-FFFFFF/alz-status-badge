@@ -65,5 +65,9 @@ func badgeApi(av ApprovedVariants) http.HandlerFunc {
 
 // checkVariant returns the status of the given variant.
 func checkVariant(av ApprovedVariants, variant string) bool {
-	return av[variant] == nil
+	_, exists := av[variant]
+	if !exists {
+		return false
+	}
+	return true
 }
