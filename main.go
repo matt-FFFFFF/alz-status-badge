@@ -98,7 +98,7 @@ func badgeApi(config *AppConfig) http.HandlerFunc {
 		if ok := re.Match([]byte(variant)); !ok {
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write([]byte(fmt.Sprintf("Invalid variant parameter '%s'. Must be 32 characters or less. a-z, A-Z, 0-9 only.", variant)))
-			log.Printf("Invalid variant parameter '%s' (%s)", variant, requestId)
+			log.Printf("Invalid variant parameter (%s)", requestId)
 			return
 		}
 
