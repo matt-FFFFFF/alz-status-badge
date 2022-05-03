@@ -1,0 +1,11 @@
+# Ignore git
+.git
+
+# Ignore GitHub files
+.github
+
+# Ignore markdown files
+**/*.md
+
+# Ignore compiled binary
+alz-status-badge
