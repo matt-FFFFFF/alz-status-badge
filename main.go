@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"regexp"
+	"strings"
 
 	"github.com/matt-FFFFFF/alz-status-badge/badge"
 )
@@ -27,13 +28,16 @@ func main() {
 // badgeApi returns a http.HandlerFunc for the given approved variants type supplied.
 func badgeApi(av ApprovedVariants) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		log.Printf("Received request from: %s (%s)", r.RemoteAddr, r.Header["X-Request-Id"])
+		requestId := r.Header["X-Request-Id"][0]
+		requestId = strings.Replace(requestId, "\n", "", -1)
+		requestId = strings.Replace(requestId, "\r", "", -1)
+		log.Printf("Received request from: %s (%s)", r.RemoteAddr, requestId)
 
 		variant := r.URL.Query().Get("variant")
 		if variant == "" {
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write([]byte("Missing variant parameter."))
-			log.Printf("Missing variant parameter (%s)", r.Header["X-Request-Id"])
+			log.Printf("Missing variant parameter (%s)", requestId)
 			return
 		}
 
@@ -42,12 +46,12 @@ func badgeApi(av ApprovedVariants) http.HandlerFunc {
 		if ok := re.Match([]byte(variant)); !ok {
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write([]byte(fmt.Sprintf("Invalid variant parameter '%s'. Must be 32 characters or less. a-z, A-Z, 0-9 only.", variant)))
-			log.Printf("Invalid variant parameter '%s' (%s)", variant, r.Header["X-Request-Id"])
+			log.Printf("Invalid variant parameter '%s' (%s)", variant, requestId)
 			return
 		}
 
 		approved := checkVariant(av, variant)
-		log.Printf("Variant: %s approval is %t (%s)", variant, approved, r.Header["X-Request-Id"])
+		log.Printf("Variant: %s approval is %t (%s)", variant, approved, requestId)
 
 		badge, err := badge.MakeShieldsioBadge(variant, approved)
 		if err != nil {
@@ -59,7 +63,7 @@ func badgeApi(av ApprovedVariants) http.HandlerFunc {
 		w.Header().Set("Content-Type", "image/svg+xml")
 		w.Write(badge)
 
-		log.Printf("End request from: %s (%s)", r.RemoteAddr, r.Header["X-Request-Id"])
+		log.Printf("End request from: %s (%s)", r.RemoteAddr, requestId)
 	}
 }
 
