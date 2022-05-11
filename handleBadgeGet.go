@@ -14,6 +14,12 @@ import (
 func (s *server) handleBadgeGet() http.HandlerFunc {
 	// Use a closure over the server to return the http.HandlerFunc
 	return func(w http.ResponseWriter, r *http.Request) {
+		// Only allow GET requests
+		if r.Method != "GET" {
+			http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
+			return
+		}
+
 		// When running in Azure container apps, we have a request header called X-Request-Id that we can use to improve logging.
 		requestId := "none"
 		if r, ok := r.Header["X-Request-Id"]; ok {
@@ -30,6 +36,7 @@ func (s *server) handleBadgeGet() http.HandlerFunc {
 			return
 		}
 
+		// Get the variant from the URL
 		variant := r.URL.Query().Get("variant")
 		if variant == "" {
 			w.WriteHeader(http.StatusBadRequest)
@@ -38,6 +45,7 @@ func (s *server) handleBadgeGet() http.HandlerFunc {
 			return
 		}
 
+		// variant must be a-z, A-Z, 0-9 with a length of 1-32 characters
 		re := regexp.MustCompile(`^\w{1,32}$`)
 
 		if ok := re.Match([]byte(variant)); !ok {
@@ -47,9 +55,11 @@ func (s *server) handleBadgeGet() http.HandlerFunc {
 			return
 		}
 
+		// Check if the variant is approved
 		approved := checkVariant(s.approvedVariants, variant)
 		log.Printf("Variant: %s approval is %t (%s)", variant, approved, requestId)
 
+		// Make new badge
 		br := badge.NewBadgeRequest()
 		br.Style = badge.ForTheBadge
 		br.Label = "ALZ-VARIANT"
