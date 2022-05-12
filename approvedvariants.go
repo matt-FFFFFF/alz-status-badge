@@ -11,10 +11,10 @@ import (
 )
 
 // updateApprovedVariants updates the approved variants map every 15 minutes. Use a goroutine to call this function as it will run forever.
-func updateApprovedVariants(config *AppConfig) {
+func updateApprovedVariants(s *server) {
 	for {
 		log.Printf("Checking approved variants")
-		vl, err := getApprovedVariants(config.ApprovedVariantsUrl)
+		vl, err := getApprovedVariants(s.approvedVariantsUrl)
 		if err != nil {
 			log.Printf("Error downloading approved variants: %s", err.Error())
 		}
@@ -24,27 +24,29 @@ func updateApprovedVariants(config *AppConfig) {
 			break
 		}
 
-		log.Printf("Approved variants downloaded: %d", len(vl))
+		log.Printf("%d approved variants downloaded", len(vl))
 
 		nv := make(map[string]interface{})
 		for _, v := range vl {
 			nv[v] = nil
 		}
 
-		config.ApprovedVariants = nv
+		s.approvedVariants.mu.Lock()
+		s.approvedVariants.list = nv
+		s.approvedVariants.mu.Unlock()
 
 		// Create a sorted list of unique approved variants for logging.
-		vs := make([]string, len(config.ApprovedVariants))
+		vs := make([]string, len(nv))
 		i := 0
-		for k := range config.ApprovedVariants {
+		for k := range nv {
 			vs[i] = k
 			i++
 		}
 
 		sort.Strings(vs)
 
-		log.Printf("%d approved variants: %v", len(vs), vs)
-		time.Sleep(config.ApprovedVariantsRefreshInterval)
+		log.Printf("%d approved variants processed: %v", len(vs), vs)
+		time.Sleep(s.approvedVariantsRefreshInterval)
 	}
 }
 
